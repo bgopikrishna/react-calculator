@@ -15,94 +15,105 @@ class App extends Component {
         prevOperator: false
       };
     }
-
-    this.handleClear = this.handleClear.bind(this);
-    this.handleEquals = this.handleEquals.bind(this);
     this.handleNumber = this.handleNumber.bind(this);
     this.handleZero = this.handleZero.bind(this);
     this.handleDecimal = this.handleDecimal.bind(this);
+
     this.handleOperator = this.handleOperator.bind(this);
+
+    this.handleClear = this.handleClear.bind(this);
+    this.handleEquals = this.handleEquals.bind(this);
   }
   handleNumber(value) {
     let { expression } = this.state;
+
     expression += value;
+
     this.setState({
       expression: expression,
       output: expression,
       userInput: value
     });
   }
+  handleZero(value) {
+    let { expression } = this.state;
 
-  handleClear(value) {
+    if (expression.indexOf(value) == 0 && expression.length < 2) {
+      expression = value;
+    } else {
+      expression += value;
+    }
     this.setState({
-      expression: "",
-      output: "0",
-      userInput: "",
-      hasError: false
-    });
-  }
-  handleEquals(value) {
-    let { expression, userInput } = this.state;
-
-    if (endsWithOperator.test(expression)) expression = expression.slice(0, -1);
-
-    expression = expression.replace(/x/g, "*").replace(/‑/g, "-");
-
-    let result = math.eval(expression);
-    result = Math.round(1000000000000 * result) / 1000000000000;
-    expression = escapeRegExp(expression);
-    this.setState({
-      output: result,
-      userInput: result.toString()
+      expression: expression,
+      output: expression,
+      userInput: value
     });
   }
   handleDecimal(value) {
     let { expression } = this.state;
-    expression += value;
-    const regDec = /.+/g;
-    expression = expression.replace(regDec, ".");
-    console.log(expression);
+    let lastIndex = expression.lastIndexOf(".");
+    let firstIndex = expression.indexOf(".");
+    if (expression.indexOf(value) && expression.length < 1) {
+      expression = expression + "0.";
+    }
+    // else if (
+    //   lastIndex == firstIndex &&
+    //   expression[expression.length - 1] !== "."
+    // ) {
+    //   expression += value;
+    // }
+    else if (!/\./.test(expression)) {
+      expression += value;
+    }
     this.setState({
       expression: expression,
       output: expression,
       userInput: value
     });
   }
-  handleZero(value) {}
 
   handleOperator(value) {
     let { expression } = this.state;
-    this.setState({
-      prevOperator: value,
-    })
+    let lastOperator = endsWithOperator.test(expression);
 
-    if (endsWithOperator.test(expression)) {
-      const sameOperator =
-       this.state.prevOperator === value ? true : false;
-      if (!sameOperator) {
-        expression = expression.split(" ");
-        expression[expression.length - 1] = value;
-        expression = expression.join("");
-        console.log(expression)
-        this.setState({
-          expression: expression,
-          output: expression,
-          userInput: value
-        });
-      }
+    if (lastOperator) {
+      expression = expression.split("");
+
+      expression[expression.length - 1] = value;
+
+      expression = expression.join("");
     } else {
       expression += value;
-      this.setState({
-        expression: expression,
-        output: expression,
-        userInput: value
-      });
     }
-  }
-  componentDidCatch(error, info) {
+
     this.setState({
-      hasError: true
+      expression: expression,
+      output: expression,
+      userInput: value
     });
+  }
+
+  handleClear() {
+    this.setState({
+      expression: "",
+      output: "0",
+      userInput: "0"
+    });
+  }
+
+  handleEquals() {
+    let { expression } = this.state;
+    expression = expression.replace(/x/g, "*").replace(/‑/g, "-");
+
+    let result =
+      Math.round(1000000000000 * math.eval(expression)) / 1000000000000;
+
+    this.setState({
+      expression: result,
+      output: expression,
+      userInput: result
+    });
+    console.log(expression, this.state.output, this.state.userInput);
   }
 
   render() {
@@ -112,7 +123,11 @@ class App extends Component {
       <div className="App">
         {!hasError ? (
           <div className="calc">
-            <Display output={output} userInput={userInput} />
+            <Display
+              output={output}
+              expression={expression}
+              userInput={userInput}
+            />
             <Pad
               handleNumber={this.handleNumber}
               handleClear={this.handleClear}
@@ -134,12 +149,11 @@ export default App;
 
 const escapeRegExp = string => string.replace(/[*|[]/g, "X");
 
-// const isOperator = c => {
-//   if (c === "+" || c === "-" || c === "x" || c === "/") {
-//     return true;
-//   } else {
-//     return false;
-//   }
-// };
-const endsWithOperator = /[x+‑/]$/;
-const isOperator = /[x/+‑]/;
+const isOperator = c => {
+  if (c === "+" || c === "-" || c === "x" || c === "/") {
+    return true;
+  } else {
+    return false;
+  }
+};
+const endsWithOperator = /[x+-/]$/;
