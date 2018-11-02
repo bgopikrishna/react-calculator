@@ -97,7 +97,9 @@ class App extends Component {
   handleEquals() {
     let { expression } = this.state;
     expression = expression.replace(/x/g, "*").replace(/‑/g, "-");
-
+    if (endsWithOperator.test(expression)) {
+      expression = expression.slice(0, -1);
+    }
     let result =
       Math.round(1000000000000 * math.eval(expression)) / 1000000000000;
 
@@ -139,7 +141,5 @@ class App extends Component {
 }
 
 export default App;
-
-
 
 const endsWithOperator = /[x+-/]$/;
