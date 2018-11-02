@@ -38,7 +38,7 @@ class App extends Component {
   handleZero(value) {
     let { expression } = this.state;
 
-    if (expression.indexOf(value) == 0 && expression.length < 2) {
+    if (expression.indexOf(value) === 0 && expression.length < 2) {
       expression = value;
     } else {
       expression += value;
@@ -51,18 +51,11 @@ class App extends Component {
   }
   handleDecimal(value) {
     let { expression } = this.state;
-    let lastIndex = expression.lastIndexOf(".");
-    let firstIndex = expression.indexOf(".");
-    if (expression.indexOf(value) && expression.length < 1) {
-      expression = expression + "0.";
-    }
-    // else if (
-    //   lastIndex == firstIndex &&
-    //   expression[expression.length - 1] !== "."
-    // ) {
-    //   expression += value;
-    // }
-    else if (!/\./.test(expression)) {
+
+    let operatorSplitter = expression.split(/[-+/x]/);
+    let opLastIndex = operatorSplitter.length - 1;
+
+    if (!/\./.test(operatorSplitter[opLastIndex])) {
       expression += value;
     }
     this.setState({
@@ -147,13 +140,6 @@ class App extends Component {
 
 export default App;
 
-const escapeRegExp = string => string.replace(/[*|[]/g, "X");
 
-const isOperator = c => {
-  if (c === "+" || c === "-" || c === "x" || c === "/") {
-    return true;
-  } else {
-    return false;
-  }
-};
+
 const endsWithOperator = /[x+-/]$/;
