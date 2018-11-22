@@ -149,7 +149,7 @@ footer a {
   text-decoration: none;
   text-align: center;
 }
-footer a::after {
+footer .link-effect::after {
   content: "";
   display: block;
   width: 0;
@@ -158,7 +158,7 @@ footer a::after {
   background: #A9A9BB;
   transition: width 0.3s;
 }
-footer a:hover::after {
+footer .link-effect:hover::after {
   width: 100%;
   transition: width 0.3s;
 }
